@@ -17,11 +17,35 @@ namespace Registration
                 .UseConsoleLogger()
                 .Build();
 
-            var conn = EventStore.ClientAPI.EventStoreConnection.Create(settings, IPEndPoint.Parse("127.0.0.1:1113"));
+            var conn = EventStoreConnection.Create(settings, IPEndPoint.Parse("127.0.0.1:1113"));
             conn.ConnectAsync().Wait();
 
             Console.WriteLine("press enter to exit");
             Console.ReadLine();
+        }
+    }
+    /*
+     * UserRegistered
+        * UserId: [GUID]
+        * FirstName: "Mike"
+        * LastName: "Jones"
+        * Email: "Mike@AOL.com"
+     */
+    public class UserRegistered
+    {
+        public readonly Guid UserId;
+        public readonly string FirstName;
+        public readonly string LastName;
+        public readonly string Email;
+
+        public UserRegistered(Guid userId,
+                              string firstName,
+                              string lastName,
+                              string email){
+            UserId = userId;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
         }
     }
 }
