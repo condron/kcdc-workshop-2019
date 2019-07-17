@@ -91,6 +91,14 @@ namespace Registration
 
             userSvc.Handle(addUser);
 
+            var changeName = new ChangeName(
+                userId,
+                "William",
+                "Bob"
+            );
+
+            userSvc.Handle(changeName);
+
             Console.WriteLine("press enter to exit");
             Console.ReadLine();
         }
@@ -204,7 +212,8 @@ namespace Registration
     #region Application Service
 
     public class UserSvc :
-        IHandleCommand<RegisterUser>
+        IHandleCommand<RegisterUser>,
+        IHandleCommand<ChangeName>
     {
         private readonly IEventStoreConnection _conn;
 
@@ -229,7 +238,18 @@ namespace Registration
             }
             return true;
         }
-
+        public bool Handle(ChangeName cmd){
+            try{
+                var user = Load<user>(cmd.UserId, _conn);
+                user.ChangeName(cmd.FirstName,cmd.LastName);
+                Save(user,_conn);
+            }
+            catch (Exception _)//todo:try harder
+            {
+                return false;
+            }
+            return true;
+        }
         //move to infra
         private static void Save(user user, IEventStoreConnection conn)
         {
@@ -259,12 +279,17 @@ namespace Registration
             var stream = $"{typeof(T).Name}-{id:N}";
             var slice = conn.ReadStreamEventsForwardAsync(stream, StreamPosition.Start, 100, true).Result;
             var events = new List<IEvent>();
+            var type = typeof(object);
+           
             foreach (var @event in slice.Events)
 
             {
+                if (@event.Event.EventType == nameof(UserRegistered)){
+                    type = typeof(UserRegistered);
+                }
                 events.Add(JsonConvert.DeserializeObject(
                     Encoding.UTF8.GetString(@event.Event.Data),
-                    Type.GetType((string)@event.Event.EventType),
+                    type,
                     serializerSettings) as IEvent);
             }
 
@@ -273,6 +298,8 @@ namespace Registration
             ((user)agg).Hydrate(events);
             return agg;
         }
+
+       
     }
     #endregion
     #region Aggregate
@@ -392,6 +419,20 @@ namespace Registration
             FirstName = firstName;
             LastName = lastName;
             Email = email;
+        }
+    }
+    public class ChangeName : IEvent, ICommand{
+        public readonly Guid UserId;
+        public readonly string FirstName;
+        public readonly string LastName;
+
+        public ChangeName(Guid userId,
+            string firstName,
+            string lastName)
+        {
+            UserId = userId;
+            FirstName = firstName;
+            LastName = lastName;
         }
     }
     public class NameChanged : IEvent
