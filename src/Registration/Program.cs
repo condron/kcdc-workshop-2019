@@ -45,27 +45,61 @@ namespace Registration
 
             var stream = $"user-{@event.UserId}";
             conn.AppendToStreamAsync(stream, ExpectedVersion.NoStream, eventData).Wait();
+            //create readmodel
 
+            var userRm = new RegisteredUsersRM();
 
+            //populate ReadModel
             var registeredUsers = $"$et-{nameof(UserRegistered)}";
             var slice = conn.ReadStreamEventsForwardAsync(registeredUsers, StreamPosition.Start, 100, true).Result;
-            var events = new List<UserRegistered>();
+            
             foreach (var evt in slice.Events)
-
             {
-                events.Add(  JsonConvert.DeserializeObject(
-                    Encoding.UTF8.GetString(evt.Event.Data),
-                    typeof(UserRegistered))as UserRegistered);
-            }
 
-            foreach (var userRegistered in events){
-                Console.WriteLine($"Registered User: {userRegistered.LastName},{userRegistered.FirstName}");
+                var userRegistered =  JsonConvert.DeserializeObject(
+                    Encoding.UTF8.GetString(evt.Event.Data),
+                    typeof(UserRegistered))as UserRegistered;
+                userRm.Handle(userRegistered);
+                
+            }
+            //Update display
+            foreach (var user in userRm.Users){
+                Console.WriteLine($"Registered User: {user.FullName}");
             }
 
             Console.WriteLine("press enter to exit");
             Console.ReadLine();
         }
     }
+    public interface IMessage { }
+    public interface IEvent:IMessage { }
+
+    public interface IHandle<in TEvent> where TEvent : IEvent
+    {
+        void Handle(TEvent @event);
+    }
+    public class RegisteredUsersRM: 
+        IHandle<UserRegistered>{
+        public readonly List<User> Users = new List<User>();
+
+        public void Handle(UserRegistered @event){
+           Users.Add( new User(@event.FirstName,@event.LastName));
+        }
+
+        public class User{
+            public string Firstname{ get; }
+            public string Lastname{ get; }
+            public string FullName => $"{Lastname}, {Firstname}";
+
+            public User(
+                string firstname,
+                string lastname){
+                Firstname = firstname;
+                Lastname = lastname;
+            }
+        }
+    }
+
     /*
      * UserRegistered
         * UserId: [GUID]
@@ -73,7 +107,7 @@ namespace Registration
         * LastName: "Jones"
         * Email: "Mike@AOL.com"
      */
-    public class UserRegistered
+    public class UserRegistered:IEvent
     {
         public readonly Guid UserId;
         public readonly string FirstName;
