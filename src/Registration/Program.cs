@@ -63,16 +63,6 @@ namespace Registration
 
             var userSvc = new UserSvc(conn);
 
-            //Handle Command
-            var userId = Guid.NewGuid();
-            var addUser = new RegisterUser(
-                userId,
-                "Billy",
-                "Bob",
-                "bob@aol.com"
-                );
-
-            userSvc.Handle(addUser);
 
             //create readmodel
 
@@ -82,12 +72,24 @@ namespace Registration
             var registeredUsers = "$ce-user";
             // var slice = conn.ReadStreamEventsForwardAsync(registeredUsers, StreamPosition.Start, 100, true).Result;
             var sub = conn.SubscribeToStreamFrom(registeredUsers,
-                null, CatchUpSubscriptionSettings.Default,
+                null,
+                CatchUpSubscriptionSettings.Default,
                 gotUserEvent,
                 liveStarted);
 
 
 
+
+            //Handle Command
+            var userId = Guid.NewGuid();
+            var addUser = new RegisterUser(
+                userId,
+                "Billy",
+                "Bob",
+                "bob@aol.com"
+            );
+
+            userSvc.Handle(addUser);
 
             Console.WriteLine("press enter to exit");
             Console.ReadLine();
@@ -245,7 +247,8 @@ namespace Registration
                 eventData.Add(new EventData(Guid.NewGuid(), typeName, true, data, null));
             }
             var stream = $"{nameof(Registration.user)}-{user.Id:N}";
-            conn.AppendToStreamAsync(stream, ExpectedVersion.NoStream, eventData).Wait();
+            //todo: add correct expected version
+            conn.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData).Wait();
         }
         private static T Load<T>(Guid id, IEventStoreConnection conn) where T : user
         {
@@ -329,6 +332,7 @@ namespace Registration
         private void Raise(IEvent @event)
         {
             _pendingEvents.Add(@event);
+            
             _version++;
             dynamic evt = @event;
             Apply(evt);
@@ -337,7 +341,7 @@ namespace Registration
 
         public IReadOnlyList<IEvent> TakEvents()
         {
-            var pending = _pendingEvents.AsReadOnly();
+            var pending = new List<IEvent>(_pendingEvents);
             _pendingEvents.Clear();
             return pending;
         }
