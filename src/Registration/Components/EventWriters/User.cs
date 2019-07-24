@@ -1,12 +1,10 @@
 ﻿using System;
+using Infrastruture;
 using Registration.Blueprint.Events;
-using Registration.infrastructure;
 
-namespace Registration.EventWriters
+namespace Registration.Components.EventWriters
 {
-    internal class User : 
-        WriterBase
-        
+    internal class User : WriterBase
     {
         internal User(
             Guid id,

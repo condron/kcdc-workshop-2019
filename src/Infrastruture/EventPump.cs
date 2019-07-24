@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using EventStore.ClientAPI;
 
-namespace Registration.infrastructure
+namespace Infrastruture
 {
     public sealed class EventPump : IDisposable
     {
@@ -26,7 +24,7 @@ namespace Registration.infrastructure
                 (sub, evt) => {
                     if (evt.Event.Data.Length > 0 &&
                         evt.Event.IsJson && 
-                        !evt.Event.EventType.StartsWith('$')) {
+                        !evt.Event.EventType.StartsWith("$")) {
                         var e = _deserializer(evt);
                         if (e is IMessage message) {
                             _readerBus.Publish(message);

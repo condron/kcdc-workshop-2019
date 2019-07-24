@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Registration.infrastructure
+﻿namespace Infrastruture
 {
     public interface ISubscribe{
         void Subscribe<TMessage>(IHandle<TMessage> subscriber) where TMessage : IEvent;

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.VisualBasic;
 
-namespace Registration.infrastructure
+namespace Infrastruture
 {
     public class SimpleBus:IBus
     {

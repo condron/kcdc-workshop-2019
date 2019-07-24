@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Registration.infrastructure
+namespace Infrastruture
 {
     public interface IEventSource
     {

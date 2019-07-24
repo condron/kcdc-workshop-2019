@@ -7,7 +7,7 @@ using System.Text;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
 
-namespace Registration.infrastructure
+namespace Infrastruture
 {
     public class SimpleRepo : IRepository
     {
@@ -69,7 +69,7 @@ namespace Registration.infrastructure
         {
             try {
                 
-                var type = Assembly.GetCallingAssembly().GetType($"Registration.Blueprint.Events.{@event.Event.EventType}");
+                var type = Assembly.GetEntryAssembly().GetType($"Registration.Blueprint.Events.{@event.Event.EventType}");
                 return JsonConvert.DeserializeObject(
                     Encoding.UTF8.GetString(@event.Event.Data),
                     type,

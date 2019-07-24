@@ -3,12 +3,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using Infrastruture;
 using Newtonsoft.Json;
 using Registration.Blueprint.Commands;
 using Registration.Blueprint.Events;
 using Registration.Blueprint.ReadModels;
-using Registration.EventReaders;
-using Registration.infrastructure;
 
 namespace Registration.Application
 {

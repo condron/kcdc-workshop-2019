@@ -1,9 +1,9 @@
 ﻿using System;
+using Infrastruture;
 using Registration.Blueprint.Commands;
-using Registration.EventWriters;
-using Registration.infrastructure;
+using Registration.Components.EventWriters;
 
-namespace Registration.CommandHandlers{
+namespace Registration.Components.CommandHandlers{
     public class UserSvc :
         IHandleCommand<RegisterUser>,
         IHandleCommand<ChangeName>

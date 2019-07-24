@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Infrastruture;
 using Registration.Blueprint.Events;
 using Registration.Blueprint.ReadModels;
-using Registration.infrastructure;
 
-namespace Registration.EventReaders
+namespace Registration.Components.EventReaders
 {
     internal class RegisteredUsers :
         IRegisteredUsers,

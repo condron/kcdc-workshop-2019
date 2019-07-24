@@ -1,4 +1,4 @@
-﻿namespace Registration.infrastructure
+﻿namespace Infrastruture
 {
     public interface IPublish{
         void Publish(IMessage message);

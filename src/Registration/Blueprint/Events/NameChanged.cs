@@ -1,5 +1,5 @@
 ﻿using System;
-using Registration.infrastructure;
+using Infrastruture;
 
 namespace Registration.Blueprint.Events{
     public class NameChanged : IEvent

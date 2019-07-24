@@ -1,3 +1,3 @@
-﻿namespace Registration.infrastructure{
+﻿namespace Infrastruture{
     public interface ICommand : IMessage { }
 }

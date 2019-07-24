@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
-namespace Registration.infrastructure
+namespace Infrastruture
 {
-    internal abstract class WriterBase:IEventSource
+    public abstract class WriterBase:IEventSource
     {
         protected void Raise(IEvent @event)
         {
