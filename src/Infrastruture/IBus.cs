@@ -1,4 +1,4 @@
-﻿namespace Infrastruture
+﻿namespace Infrastructure
 {
     public interface IBus : IPublish, ISubscribe
     {

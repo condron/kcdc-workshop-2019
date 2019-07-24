@@ -7,7 +7,7 @@ using System.Text;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
 
-namespace Infrastruture
+namespace Infrastructure
 {
     public class SimpleRepo : IRepository
     {
@@ -16,7 +16,7 @@ namespace Infrastruture
             TypeNameHandling = TypeNameHandling.Auto
         };
 
-        public SimpleRepo(IEventStoreConnection conn)
+        public SimpleRepo(IEventStoreConnection conn, string eventNamespace)
         {
             _conn = conn;
         }

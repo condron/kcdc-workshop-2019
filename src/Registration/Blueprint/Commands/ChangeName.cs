@@ -1,5 +1,5 @@
 ﻿using System;
-using Infrastruture;
+using Infrastructure;
 
 namespace Registration.Blueprint.Commands{
     public class ChangeName : IEvent, ICommand{

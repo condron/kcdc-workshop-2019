@@ -1,5 +1,5 @@
 ﻿using System;
-using Infrastruture;
+using Infrastructure;
 using Registration.Blueprint.Events;
 
 namespace Registration.Components.EventWriters

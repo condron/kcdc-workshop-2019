@@ -1,7 +1,7 @@
 ﻿using System;
 using EventStore.ClientAPI;
 
-namespace Infrastruture
+namespace Infrastructure
 {
     public sealed class EventPump : IDisposable
     {

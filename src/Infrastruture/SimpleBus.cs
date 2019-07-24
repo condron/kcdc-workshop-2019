@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Infrastruture
+namespace Infrastructure
 {
     public class SimpleBus:IBus
     {

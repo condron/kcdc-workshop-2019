@@ -1,4 +1,4 @@
-﻿namespace Infrastruture
+﻿namespace Infrastructure
 {
     public interface ISubscribe{
         void Subscribe<TMessage>(IHandle<TMessage> subscriber) where TMessage : IEvent;

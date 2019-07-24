@@ -1,3 +1,3 @@
-﻿namespace Infrastruture{
+﻿namespace Infrastructure{
     public interface ICommand : IMessage { }
 }

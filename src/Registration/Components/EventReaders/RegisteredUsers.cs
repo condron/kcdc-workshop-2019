@@ -1,18 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using Infrastruture;
+using Infrastructure;
 using Registration.Blueprint.Events;
 using Registration.Blueprint.ReadModels;
 
 namespace Registration.Components.EventReaders
 {
     internal class RegisteredUsers :
-        IRegisteredUsers,
+        IReadModel<IRegisteredUsers>,
         IHandle<UserRegistered>,
         IHandle<NameChanged>
     {
+        public Tuple<CheckPoint, IRegisteredUsers> GetCurrent(Action<Tuple<CheckPoint, IRegisteredUsers>> target = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SubscribeToChanges(Action<Tuple<CheckPoint, IRegisteredUsers>> target)
+        {
+            throw new NotImplementedException();
+        }
         private object readlock = new object();
-        UserDisplayNameDTO[] IRegisteredUsers.UserDisplayNames
+        UserDisplayNameDTO[] UserDisplayNames
         {
             get {
                 int count;
@@ -58,5 +67,7 @@ namespace Registration.Components.EventReaders
                 //  read models don't throw
             }
         }
+
+        
     }
 }

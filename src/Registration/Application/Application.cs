@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
-using Infrastruture;
+using Infrastructure;
 using Newtonsoft.Json;
 using Registration.Blueprint.Commands;
 using Registration.Blueprint.Events;
@@ -84,7 +84,6 @@ namespace Registration.Application
                 CommandPublisher.Publish(changeName);
                 input = Console.ReadLine();
             }
-
         }
 
         private void DisplayLoop(){
@@ -97,9 +96,7 @@ namespace Registration.Application
                 }
                 Thread.Sleep(1000);
             }
-
         }
-
       
         public void ShutDown()
         {

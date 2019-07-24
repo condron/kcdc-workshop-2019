@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Infrastruture
+namespace Infrastructure
 {
     public abstract class WriterBase:IEventSource
     {

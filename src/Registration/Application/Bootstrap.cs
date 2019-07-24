@@ -3,7 +3,7 @@ using System.Net;
 using System.Text;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using Infrastruture;
+using Infrastructure;
 using Newtonsoft.Json;
 using Registration.Blueprint.Commands;
 using Registration.Blueprint.Events;
