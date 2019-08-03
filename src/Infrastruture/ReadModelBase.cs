@@ -57,6 +57,9 @@ namespace Infrastructure
                 }
                 _checkPoint = new AllCheckpoint(evt.OriginalPosition.Value);
             }
+
+            if (_isLive) { UpdateTargets();}
+
             return Task.CompletedTask;
         }
         private void ApplyOnParent(IEvent @event)

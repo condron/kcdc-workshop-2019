@@ -20,7 +20,7 @@ namespace Registration.Application
         }
 
         public IPublish CommandPublisher;
-        
+
         public void PreLoadUserData()
         {
             var userId = Guid.NewGuid();
@@ -73,7 +73,8 @@ namespace Registration.Application
                 );
 
                 CommandPublisher.Publish(addUser);
-
+                Console.WriteLine(Environment.NewLine + "press enter to update name");
+                Console.ReadLine();
                 var changeName = new ChangeName(
                     userId,
                     "Finn",
