@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Infrastructure;
@@ -15,10 +17,7 @@ namespace Registration.Application
 {
     public static class Bootstrap
     {
-
-
-
-        public static void ConfigureApp(RegistrationApp app)
+        public static void ConfigureApp(RegistrationApp app, string eventNamespace)
         {
             var settings = ConnectionSettings.Create()
                 .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
@@ -28,18 +27,12 @@ namespace Registration.Application
                 .Build();
             var conn = EventStoreConnection.Create(settings, IPEndPoint.Parse("127.0.0.1:1113"));
             conn.ConnectAsync().Wait();
-            
-            //configure read side
-            var eventBus = new SimpleBus();
-            var repo = new SimpleRepo(conn);
-            
-            var userRm = new RegisteredUsers();
-            eventBus.Subscribe<UserRegistered>(userRm);
-            eventBus.Subscribe<NameChanged>(userRm);
 
-            var pump = new EventPump(conn, eventBus, repo.Deserialize);
 
-            //configure write side
+            var repo = new SimpleRepo(conn, eventNamespace);
+
+            var userRm = new RegisteredUsers(conn, repo.Deserialize);
+
             var mainBus = new SimpleBus();
 
             var userSvc = new UserSvc(repo);
@@ -48,10 +41,11 @@ namespace Registration.Application
 
             //application wire up
             app.CommandPublisher = mainBus;
-            app.GetUsers = () => (IRegisteredUsers)userRm;
-            
+            userRm.SubscribeToChanges(app.DisplayUsers);
             //start 
-            pump.Start();
+            userRm.Start();
+            
+
         }
     }
 }

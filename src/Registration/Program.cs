@@ -24,7 +24,6 @@ namespace Registration
             
             Console.WriteLine("press enter to exit");
             Console.ReadLine();
-            app.ShutDown();
         }
     }
 }

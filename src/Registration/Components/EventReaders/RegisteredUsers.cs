@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using EventStore.ClientAPI;
 using Infrastructure;
 using Registration.Blueprint.Events;
 using Registration.Blueprint.ReadModels;
@@ -7,67 +9,38 @@ using Registration.Blueprint.ReadModels;
 namespace Registration.Components.EventReaders
 {
     internal class RegisteredUsers :
-        IReadModel<IRegisteredUsers>,
+        ReadModelBase<List<UserDisplayName>>,
         IHandle<UserRegistered>,
         IHandle<NameChanged>
     {
-        public Tuple<CheckPoint, IRegisteredUsers> GetCurrent(Action<Tuple<CheckPoint, IRegisteredUsers>> target = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SubscribeToChanges(Action<Tuple<CheckPoint, IRegisteredUsers>> target)
-        {
-            throw new NotImplementedException();
-        }
-        private object readlock = new object();
-        UserDisplayNameDTO[] UserDisplayNames
-        {
-            get {
-                int count;
-                Guid[] userIds ;
-                lock (readlock) {
-                     count = _users.Keys.Count;
-                     userIds = new Guid[count];
-                    _users.Keys.CopyTo(userIds, 0);
-                }
-                var users = new UserDisplayNameDTO[count];
-                for (int i = 0; i < count; i++) {
-                    var user = _users[userIds[i]];
-                    users[i] = new UserDisplayNameDTO(userIds[i], user);
-                }
-
-                return users;
-            }
-        }
-
-        private readonly Dictionary<Guid, string> _users = new Dictionary<Guid, string>();
-
+        public RegisteredUsers(
+            IEventStoreConnection conn,
+            Func<ResolvedEvent, object> deserializer) : base(conn, deserializer)
+        { }
         public void Handle(UserRegistered @event)
         {
-            try
-            {
-                lock (readlock) {
-                    _users.Add(@event.UserId, $"{@event.LastName}, {@event.FirstName}");
-                }
+            try {
+                Model.Add(new UserDisplayName(@event.UserId, $"{@event.LastName}, {@event.FirstName}"));
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 //  read models don't throw
             }
         }
         public void Handle(NameChanged @event)
         {
-            try
-            {
-                _users[@event.UserId] = $"{@event.LastName}, {@event.FirstName}";
+            try {
+                foreach (var user in Model) {
+                    if (user.UserId == @event.UserId) {
+                        user.DisplayName = $"{@event.LastName}, {@event.FirstName}";
+                        break;
+                    }
+                }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 //  read models don't throw
             }
         }
 
-        
+
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Infrastructure;
 using Newtonsoft.Json;
@@ -11,30 +10,33 @@ using Registration.Blueprint.ReadModels;
 
 namespace Registration.Application
 {
-    public class RegistrationApp{
-       
-        public RegistrationApp(){
-            Bootstrap.ConfigureApp(this);
+    public class RegistrationApp
+    {
+
+        public RegistrationApp()
+        {
+            var eventNamespace = "Registration.Blueprint.Events";
+            Bootstrap.ConfigureApp(this, eventNamespace);
         }
 
         public IPublish CommandPublisher;
-        public Func<IRegisteredUsers> GetUsers;
-
-        public void PreLoadUserData(){
+        
+        public void PreLoadUserData()
+        {
             var userId = Guid.NewGuid();
-             var registered = new UserRegistered(
-              userId,
-              "Mike",
-              "Jones",
-              "mike@aol.com");
+            var registered = new UserRegistered(
+             userId,
+             "Mike",
+             "Jones",
+             "mike@aol.com");
 
-          var namechange = new NameChanged(
-              userId,
-              "Micheal",
-              "Jones");
+            var namechange = new NameChanged(
+                userId,
+                "Micheal",
+                "Jones");
 
 
-          var eventData = new[]{
+            var eventData = new[]{
               new EventData(
                   Guid.NewGuid(),
                   nameof(UserRegistered),
@@ -49,17 +51,14 @@ namespace Registration.Application
                   null),
           };
 
-          var stream = $"user-{userId}";
-         // conn.AppendToStreamAsync(stream, ExpectedVersion.NoStream, eventData).Wait();
-          
+            var stream = $"user-{userId}";
+            // conn.AppendToStreamAsync(stream, ExpectedVersion.NoStream, eventData).Wait();
+
 
         }
 
-        private bool _stop;
-
-        public void Start(){
-
-            Task.Run(DisplayLoop);
+        public void Start()
+        {
 
             var input = "";
             while (input?.ToLower() != "exit") {
@@ -78,29 +77,22 @@ namespace Registration.Application
                 var changeName = new ChangeName(
                     userId,
                     "Finn",
-                    "Mike"
+                    "Bob"
                 );
 
                 CommandPublisher.Publish(changeName);
                 input = Console.ReadLine();
             }
         }
-
-        private void DisplayLoop(){
-
-            while (!_stop) {
-                var users = GetUsers();
+        private object writeLock = new object();
+        public void DisplayUsers(Tuple<CheckPoint, List<UserDisplayName>> usersTuple)
+        {
+            lock (writeLock) {
                 Console.Clear();
-                foreach (var usersUserDisplayName in users.UserDisplayNames) {
+                foreach (var usersUserDisplayName in usersTuple.Item2) {
                     Console.WriteLine(usersUserDisplayName.DisplayName);
                 }
-                Thread.Sleep(1000);
             }
-        }
-      
-        public void ShutDown()
-        {
-            _stop = true;
         }
     }
 }
