@@ -4,7 +4,7 @@ using Registration.Blueprint.Events;
 
 namespace Registration.Components.EventWriters
 {
-    internal class User : WriterBase
+    internal class User : Writer
     {
         internal User(
             Guid id,

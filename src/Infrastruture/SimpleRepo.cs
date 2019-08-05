@@ -12,6 +12,8 @@ namespace Infrastructure
     public class SimpleRepo : IRepository
     {
         private readonly IEventStoreConnection _conn;
+        private readonly string _eventNamespace;
+
         private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
             TypeNameHandling = TypeNameHandling.Auto
         };
@@ -19,6 +21,7 @@ namespace Infrastructure
         public SimpleRepo(IEventStoreConnection conn, string eventNamespace)
         {
             _conn = conn;
+            _eventNamespace = eventNamespace;
         }
 
         public void Save(IEventSource source)
@@ -42,7 +45,7 @@ namespace Infrastructure
                 currentSlice = _conn.ReadStreamEventsForwardAsync(
                                         streamName,
                                         sliceStart,
-                                        (int)500,
+                                        500,
                                         true).Result;
 
                 if (currentSlice.Status == SliceReadStatus.StreamNotFound)
@@ -69,7 +72,7 @@ namespace Infrastructure
         {
             try {
                 
-                var type = Assembly.GetEntryAssembly().GetType($"Registration.Blueprint.Events.{@event.Event.EventType}");
+                var type = Assembly.GetEntryAssembly()?.GetType($"{_eventNamespace}.{@event.Event.EventType}");
                 return JsonConvert.DeserializeObject(
                     Encoding.UTF8.GetString(@event.Event.Data),
                     type,

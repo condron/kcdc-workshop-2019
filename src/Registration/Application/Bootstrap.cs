@@ -41,7 +41,7 @@ namespace Registration.Application
 
             //application wire up
             app.CommandPublisher = mainBus;
-            userRm.SubscribeToChanges(app.DisplayUsers);
+            userRm.Subscribe(app.DisplayUsers);
             //start 
             userRm.Start();
             

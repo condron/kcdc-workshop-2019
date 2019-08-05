@@ -85,13 +85,13 @@ namespace Registration.Application
                 input = Console.ReadLine();
             }
         }
-        private object writeLock = new object();
-        public void DisplayUsers(Tuple<CheckPoint, List<UserDisplayName>> usersTuple)
+        private readonly object _writeLock = new object();
+        public void DisplayUsers(List<UserDisplayName> users)
         {
-            lock (writeLock) {
+            lock (_writeLock) {
                 Console.Clear();
-                foreach (var usersUserDisplayName in usersTuple.Item2) {
-                    Console.WriteLine(usersUserDisplayName.DisplayName);
+                foreach (var user in users) {
+                    Console.WriteLine(user.DisplayName);
                 }
             }
         }

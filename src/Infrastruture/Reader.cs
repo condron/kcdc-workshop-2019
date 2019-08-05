@@ -7,29 +7,28 @@ using EventStore.ClientAPI;
 
 namespace Infrastructure
 {
-    public abstract class ReadModelBase<TModel> : IReadModel<TModel> where TModel : class, new()
+    public abstract class Reader<TModel> : 
+        IReadModel<TModel> where TModel : class, new()
     {
-        private object _updateLock = new object();
+        private readonly object _updateLock = new object();
         private readonly IEventStoreConnection _conn;
         private readonly Func<ResolvedEvent, object> _deserializer;
         private EventStoreAllCatchUpSubscription _subscription;
 
         protected TModel Model;
-        private CheckPoint _checkPoint;
+        private Position _checkPoint;
 
-        private readonly List<Action<Tuple<CheckPoint, TModel>>> _targets =
-            new List<Action<Tuple<CheckPoint, TModel>>>();
+        private readonly List<Action<TModel>> _targets = new List<Action<TModel>>();
 
-        protected ReadModelBase(
+        protected Reader(
             IEventStoreConnection conn,
             Func<ResolvedEvent, object> deserializer,
-            CheckPoint checkpoint = null,
-            TModel snapshot = null)
+            SnapShot<TModel> snapshot = null)
         {
             _conn = conn;
             _deserializer = deserializer;
-            _checkPoint = checkpoint ?? new AllCheckpoint(Position.Start);
-            Model = snapshot ?? new TModel();
+            _checkPoint = snapshot?.At ?? Position.Start;
+            Model = snapshot?.Data ?? new TModel();
         }
 
         private bool _isLive = false;
@@ -43,7 +42,7 @@ namespace Infrastructure
                 (_) => { _isLive = true; }
             );
             SpinWait.SpinUntil(() => _isLive);
-           UpdateTargets();
+            UpdateTargets();
         }
 
         private Task GotEvent(EventStoreCatchUpSubscription sub, ResolvedEvent evt)
@@ -53,12 +52,12 @@ namespace Infrastructure
                     return Task.CompletedTask;
                 var e = _deserializer(evt);
                 if (e is IEvent message) {
-                   ApplyOnParent(message);
+                    ApplyOnParent(message);
                 }
-                _checkPoint = new AllCheckpoint(evt.OriginalPosition.Value);
+                _checkPoint = evt.OriginalPosition.Value;
             }
 
-            if (_isLive) { UpdateTargets();}
+            if (_isLive) { UpdateTargets(); }
 
             return Task.CompletedTask;
         }
@@ -67,19 +66,24 @@ namespace Infrastructure
             var apply = (this as dynamic).GetType().GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance, null,
                 new[] { @event.GetType() }, null);
             apply?.Invoke(this, new object[] { @event });
-            
+
         }
-        public Tuple<CheckPoint, TModel> GetCurrent()
-        {
-            lock (_updateLock) {
-                return new Tuple<CheckPoint, TModel>(_checkPoint, Model);
+        //IReadModel implementation
+        public TModel Current {
+            get {
+                lock (_updateLock) {
+                    return Model;
+                }
             }
         }
 
-        public void SubscribeToChanges(Action<Tuple<CheckPoint, TModel>> target)
+        public void Subscribe(Action<TModel> target)
         {
             _targets.Add(target);
         }
+
+        public SnapShot<TModel> Snapshot => new SnapShot<TModel>(_checkPoint, Model);
+
         private void UpdateTargets()
         {
             if (!_isLive) {
@@ -87,9 +91,8 @@ namespace Infrastructure
             }
             lock (_updateLock) {
                 var current = Model;
-                var checkPoint = _checkPoint;
                 foreach (var target in _targets) {
-                    target(new Tuple<CheckPoint, TModel>(checkPoint, current));
+                    target(current);
                 }
             }
         }

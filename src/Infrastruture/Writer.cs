@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Infrastructure
 {
-    public abstract class WriterBase:IEventSource
+    public abstract class Writer:IEventSource
     {
         protected void Raise(IEvent @event)
         {

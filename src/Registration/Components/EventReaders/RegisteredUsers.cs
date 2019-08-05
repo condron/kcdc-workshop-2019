@@ -9,7 +9,7 @@ using Registration.Blueprint.ReadModels;
 namespace Registration.Components.EventReaders
 {
     internal class RegisteredUsers :
-        ReadModelBase<List<UserDisplayName>>,
+        Reader<List<UserDisplayName>>,
         IHandle<UserRegistered>,
         IHandle<NameChanged>
     {
