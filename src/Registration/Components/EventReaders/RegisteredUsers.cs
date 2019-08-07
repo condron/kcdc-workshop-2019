@@ -8,7 +8,7 @@ using Registration.Blueprint.ReadModels;
 
 namespace Registration.Components.EventReaders
 {
-    internal class RegisteredUsers :
+    public class RegisteredUsers :
         Reader<List<UserDisplayName>>
     {
         public RegisteredUsers(

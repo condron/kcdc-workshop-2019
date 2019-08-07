@@ -4,15 +4,15 @@ using Registration.Blueprint.Events;
 
 namespace Registration.Components.EventWriters
 {
-    internal class User : Writer
+    public class User : Writer
     {
-        internal User(
+        public User(
             Guid id,
             string firstName,
-            string lastname,
+            string lastName,
             string email)
         {
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastname)) {
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)) {
                 throw new Exception("User must have a name");
             }
             if (string.IsNullOrEmpty(email)) {
@@ -22,7 +22,7 @@ namespace Registration.Components.EventWriters
                 throw new Exception("User must have a non empty id");
             }
 
-            Raise(new UserRegistered(id, firstName, lastname, email));
+            Raise(new UserRegistered(id, firstName, lastName, email));
         }
         public void ChangeName(string first, string last)
         {
