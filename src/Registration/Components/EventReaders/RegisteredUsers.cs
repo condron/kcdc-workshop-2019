@@ -9,15 +9,14 @@ using Registration.Blueprint.ReadModels;
 namespace Registration.Components.EventReaders
 {
     internal class RegisteredUsers :
-        Reader<List<UserDisplayName>>,
-        IHandle<UserRegistered>,
-        IHandle<NameChanged>
+        Reader<List<UserDisplayName>>
+        
     {
         public RegisteredUsers(
             IEventStoreConnection conn,
             Func<ResolvedEvent, object> deserializer) : base(conn, deserializer)
         { }
-        public void Handle(UserRegistered @event)
+        public void Apply(UserRegistered @event)
         {
             try {
                 Model.Add(new UserDisplayName(@event.UserId, $"{@event.LastName}, {@event.FirstName}"));
@@ -26,7 +25,7 @@ namespace Registration.Components.EventReaders
                 //  read models don't throw
             }
         }
-        public void Handle(NameChanged @event)
+        public void Apply(NameChanged @event)
         {
             try {
                 foreach (var user in Model) {

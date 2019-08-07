@@ -52,7 +52,7 @@ namespace Infrastructure
                     return Task.CompletedTask;
                 var e = _deserializer(evt);
                 if (e is IEvent message) {
-                    ApplyOnParent(message);
+                    Apply(message);
                 }
                 _checkPoint = evt.OriginalPosition.Value;
             }
@@ -61,10 +61,9 @@ namespace Infrastructure
 
             return Task.CompletedTask;
         }
-        private void ApplyOnParent(IEvent @event)
+        private void Apply(IEvent @event)
         {
-            var apply = (this as dynamic).GetType().GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance, null,
-                new[] { @event.GetType() }, null);
+            var apply = (this as dynamic).GetType().GetMethod("Apply", BindingFlags.Public | BindingFlags.Instance, null, new[] { @event.GetType() }, null);
             apply?.Invoke(this, new object[] { @event });
 
         }
