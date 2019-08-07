@@ -1,48 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 
 namespace Infrastructure
 {
-    public abstract class Reader<TModel> : 
+    public abstract class Reader<TModel> :
+        EventDrivenStateMachine,
+        IDisposable,
         IReadModel<TModel> where TModel : class, new()
+        
     {
         private readonly object _updateLock = new object();
-        private readonly IEventStoreConnection _conn;
+        private readonly Func<IEventStoreConnection> _getConn;
         private readonly Func<ResolvedEvent, object> _deserializer;
         private EventStoreAllCatchUpSubscription _subscription;
+        private bool _isLive;
 
         protected TModel Model;
         private Position _checkPoint;
 
-        private readonly List<Action<TModel>> _targets = new List<Action<TModel>>();
+        private readonly List<Action<TModel>> _subscribers = new List<Action<TModel>>();
 
         protected Reader(
-            IEventStoreConnection conn,
+            Func<IEventStoreConnection> conn,
             Func<ResolvedEvent, object> deserializer,
             SnapShot<TModel> snapshot = null)
         {
-            _conn = conn;
+            _getConn = conn;
             _deserializer = deserializer;
             _checkPoint = snapshot?.At ?? Position.Start;
             Model = snapshot?.Data ?? new TModel();
         }
-
-        private bool _isLive = false;
-
+        
         public void Start()
         {
-            _subscription = _conn.SubscribeToAllFrom(
+            _subscription = _getConn().SubscribeToAllFrom(
                 Position.Start,
                 CatchUpSubscriptionSettings.Default,
                 GotEvent,
                 (_) => { _isLive = true; }
             );
             SpinWait.SpinUntil(() => _isLive);
-            UpdateTargets();
+            UpdateSubscribers();
+        }
+
+        public void Stop()
+        {
+            _subscription?.Stop();
         }
 
         private Task GotEvent(EventStoreCatchUpSubscription sub, ResolvedEvent evt)
@@ -54,19 +60,16 @@ namespace Infrastructure
                 if (e is IEvent message) {
                     Apply(message);
                 }
+                // ReSharper disable once PossibleInvalidOperationException
+                // this always has a value here
                 _checkPoint = evt.OriginalPosition.Value;
             }
 
-            if (_isLive) { UpdateTargets(); }
+            if (_isLive) { UpdateSubscribers(); }
 
             return Task.CompletedTask;
         }
-        private void Apply(IEvent @event)
-        {
-            var apply = (this as dynamic).GetType().GetMethod("Apply", BindingFlags.Public | BindingFlags.Instance, null, new[] { @event.GetType() }, null);
-            apply?.Invoke(this, new object[] { @event });
-
-        }
+       
         //IReadModel implementation
         public TModel Current {
             get {
@@ -78,23 +81,35 @@ namespace Infrastructure
 
         public void Subscribe(Action<TModel> target)
         {
-            _targets.Add(target);
+            _subscribers.Add(target);
         }
-
-        public SnapShot<TModel> Snapshot => new SnapShot<TModel>(_checkPoint, Model);
-
-        private void UpdateTargets()
+        
+        private void UpdateSubscribers()
         {
             if (!_isLive) {
                 return;
             }
             lock (_updateLock) {
                 var current = Model;
-                foreach (var target in _targets) {
+                foreach (var target in _subscribers) {
                     target(current);
                 }
             }
         }
+        //TODO: Implement rebuild from snapshot support
+        public SnapShot<TModel> Snapshot => new SnapShot<TModel>(_checkPoint, Model);
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                _subscription?.Stop();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

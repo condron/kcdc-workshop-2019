@@ -12,10 +12,10 @@ namespace Registration.Components.EventReaders
         Reader<List<UserDisplayName>>
     {
         public RegisteredUsers(
-            IEventStoreConnection conn,
+            Func<IEventStoreConnection> conn,
             Func<ResolvedEvent, object> deserializer) : base(conn, deserializer)
         { }
-        public void Apply(UserRegistered @event)
+        private void Apply(UserRegistered @event)
         {
             try {
                 Model.Add(new UserDisplayName(@event.UserId, $"{@event.LastName}, {@event.FirstName}"));
@@ -24,7 +24,7 @@ namespace Registration.Components.EventReaders
                 //  read models don't throw
             }
         }
-        public void Apply(NameChanged @event)
+        private void Apply(NameChanged @event)
         {
             try {
                 foreach (var user in Model) {

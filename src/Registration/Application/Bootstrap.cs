@@ -31,7 +31,7 @@ namespace Registration.Application
 
             var repo = new SimpleRepo(conn, eventNamespace);
 
-            var userRm = new RegisteredUsers(conn, repo.Deserialize);
+            var userRm = new RegisteredUsers(() => conn, repo.Deserialize);
 
             var mainBus = new SimpleBus();
 
@@ -44,7 +44,7 @@ namespace Registration.Application
             userRm.Subscribe(app.DisplayUsers);
             //start 
             userRm.Start();
-            
+
 
         }
     }

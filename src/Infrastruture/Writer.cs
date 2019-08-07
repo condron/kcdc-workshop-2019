@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Infrastructure
 {
-    public abstract class Writer:IEventSource
+    public abstract class Writer : EventDrivenStateMachine, IEventSource
     {
+        private List<IEvent> _pendingEvents = new List<IEvent>();
         protected void Raise(IEvent @event)
         {
             _pendingEvents.Add(@event);
             Apply(@event);
         }
 
-        private void Apply(IEvent @event)
-        {
-            var apply = (this as dynamic).GetType().GetMethod("Apply", BindingFlags.NonPublic | BindingFlags.Instance, null,new[] {@event.GetType()}, null);
-            apply?.Invoke(this, new object[] {@event});
-        }
 
-        private List<IEvent> _pendingEvents = new List<IEvent>();
+        //IEventSource
         private long _version = -1;
-        protected Guid Id;
-
         long IEventSource.Version => _version;
+
+        protected Guid Id;
         Guid IEventSource.Id => Id;
 
         string IEventSource.Name {
@@ -31,15 +26,14 @@ namespace Infrastructure
                 return derived.GetType().Name;
             }
         }
-
+        //TODO: Implement hot writer and snapshot support
         void IEventSource.Hydrate(IEnumerable<IEvent> events)
         {
-            //if created by repo complete object setup
-            if(_pendingEvents == null) _pendingEvents = new List<IEvent>();
+            //created by reflection so complete object setup
+            if (_pendingEvents == null) _pendingEvents = new List<IEvent>();
             _version = -1;
 
-            foreach (var @event in events)
-            {
+            foreach (var @event in events) {
 
                 Apply(@event);
                 if (_version < 0) // new aggregates have a expected version of -1 or -2
