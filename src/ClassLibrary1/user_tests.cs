@@ -4,6 +4,7 @@ using Infrastructure;
 using Registration.Blueprint.Events;
 using Registration.Components.EventWriters;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Registration.Tests
 {

@@ -1,15 +1,8 @@
-﻿using System;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading;
+﻿using System.Net;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Infrastructure;
-using Newtonsoft.Json;
 using Registration.Blueprint.Commands;
-using Registration.Blueprint.Events;
-using Registration.Blueprint.ReadModels;
 using Registration.Components.CommandHandlers;
 using Registration.Components.EventReaders;
 
