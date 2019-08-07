@@ -9,13 +9,12 @@ namespace Infrastructure
         protected void Raise(IEvent @event)
         {
             _pendingEvents.Add(@event);
-            ApplyOnParent(@event);
+            Apply(@event);
         }
 
-        private void ApplyOnParent(IEvent @event)
+        private void Apply(IEvent @event)
         {
-            var apply = (this as dynamic).GetType().GetMethod("Apply", BindingFlags.NonPublic | BindingFlags.Instance, null,
-                new[] {@event.GetType()}, null);
+            var apply = (this as dynamic).GetType().GetMethod("Apply", BindingFlags.NonPublic | BindingFlags.Instance, null,new[] {@event.GetType()}, null);
             apply?.Invoke(this, new object[] {@event});
         }
 
@@ -41,7 +40,8 @@ namespace Infrastructure
 
             foreach (var @event in events)
             {
-                ApplyOnParent(@event);
+
+                Apply(@event);
                 if (_version < 0) // new aggregates have a expected version of -1 or -2
                     _version = 0; // got first event (zero based)
                 else
