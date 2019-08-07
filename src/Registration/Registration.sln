@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Registration", "Registratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "..\Infrastruture\Infrastructure.csproj", "{AF5DE214-12A1-4379-A58B-EDCD4A9F99B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registration.Tests", "..\ClassLibrary1\Registration.Tests.csproj", "{600835B9-B3BD-41D3-BD17-4E6857B7B361}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AF5DE214-12A1-4379-A58B-EDCD4A9F99B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF5DE214-12A1-4379-A58B-EDCD4A9F99B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF5DE214-12A1-4379-A58B-EDCD4A9F99B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{600835B9-B3BD-41D3-BD17-4E6857B7B361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{600835B9-B3BD-41D3-BD17-4E6857B7B361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{600835B9-B3BD-41D3-BD17-4E6857B7B361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{600835B9-B3BD-41D3-BD17-4E6857B7B361}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
