@@ -96,7 +96,7 @@ namespace Infrastructure
                 }
             }
         }
-        //TODO: Implement rebuild from snapshot support
+        
         public SnapShot<TModel> Snapshot => new SnapShot<TModel>(_checkPoint, Model);
 
         protected virtual void Dispose(bool disposing)
