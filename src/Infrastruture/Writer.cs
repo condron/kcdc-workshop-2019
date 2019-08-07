@@ -40,6 +40,7 @@ namespace Infrastructure
 
             foreach (var @event in events)
             {
+
                 Apply(@event);
                 if (_version < 0) // new aggregates have a expected version of -1 or -2
                     _version = 0; // got first event (zero based)

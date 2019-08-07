@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using EventStore.ClientAPI;
@@ -10,7 +10,6 @@ namespace Registration.Components.EventReaders
 {
     internal class RegisteredUsers :
         Reader<List<UserDisplayName>>
-        
     {
         public RegisteredUsers(
             IEventStoreConnection conn,
